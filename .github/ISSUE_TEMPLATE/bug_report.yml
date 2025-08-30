@@ -1,0 +1,46 @@
+name: 🐛 Bug Report
+description: 버그를 발견했을 때 사용
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: 📋 버그 설명
+      description: 버그가 무엇인지 명확하게 설명해주세요.
+      placeholder: 예) 로그인 버튼 클릭 시 500 에러 발생
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 🔄 재현 절차
+      description: 버그를 재현하는 방법을 단계별로 작성해주세요.
+      placeholder: |
+        1. ~ 페이지 이동
+        2. ~ 버튼 클릭
+        3. 오류 메시지 확인
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: ✅ 기대 동작
+      description: 정상적으로 어떻게 동작해야 하는지 작성해주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 🖥 실행 환경
+      description: 환경 정보를 작성해주세요.
+      placeholder: |
+        - OS: macOS Ventura
+        - Browser: Chrome 115
+        - Backend: Spring Boot 3.2.5
+        - DB: PostgreSQL 16
+    validations:
+      required: false
