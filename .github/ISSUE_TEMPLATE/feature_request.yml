@@ -1,0 +1,30 @@
+name: 🚀 Feature Request
+description: 새로운 기능을 제안할 때 사용
+title: "[FEAT] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: background
+    attributes:
+      label: 💡 배경
+      description: 어떤 문제나 필요 때문에 이 기능이 필요한지 작성해주세요.
+      placeholder: 예) 사용자들이 DB 연결 상태를 확인하기 어렵습니다.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: ✨ 제안하는 해결책
+      description: 어떤 기능/구현 방식을 제안하는지 구체적으로 작성해주세요.
+      placeholder: 예) health check API를 추가해서 상태를 반환하도록 한다.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 🔄 대안
+      description: 고려했던 다른 방법이 있다면 작성해주세요.
+    validations:
+      required: false
