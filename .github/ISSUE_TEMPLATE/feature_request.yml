@@ -1,30 +1,57 @@
-name: 🚀 Feature Request
-description: 새로운 기능을 제안할 때 사용
-title: "[FEAT] "
-labels: ["enhancement"]
+# .github/ISSUE_TEMPLATE/feature_request.yml
+
+name: "JIRA 연동 이슈 생성"
+description: "이 템플릿을 기반으로 JIRA 이슈가 생성됩니다."
+title: "[Feat] - 컨벤션을 따라주세요"
+labels: []
 body:
-  - type: textarea
-    id: background
-    attributes:
-      label: 💡 배경
-      description: 어떤 문제나 필요 때문에 이 기능이 필요한지 작성해주세요.
-      placeholder: 예) 사용자들이 DB 연결 상태를 확인하기 어렵습니다.
-    validations:
-      required: true
+- type: dropdown
+  id: issue_type
+  attributes:
+    label: "⚡️ 이슈 유형"
+    description: "JIRA에서 생성될 이슈 유형입니다."
+    options:
+      - Story
+      - Task
+      - Bug
+      - Chore
+      - Epic
+  validations:
+    required: true
 
-  - type: textarea
-    id: solution
-    attributes:
-      label: ✨ 제안하는 해결책
-      description: 어떤 기능/구현 방식을 제안하는지 구체적으로 작성해주세요.
-      placeholder: 예) health check API를 추가해서 상태를 반환하도록 한다.
-    validations:
-      required: true
+- type: input
+  id: epic_number
+  attributes:
+    label: "🎟️ 상위 에픽 Number"
+    description: "JIRA의 상위 이슈(에픽) 번호입니다. (선택 사항)"
+    placeholder: "SCRUM-123"
+  validations:
+    required: false
 
-  - type: textarea
-    id: alternatives
-    attributes:
-      label: 🔄 대안
-      description: 고려했던 다른 방법이 있다면 작성해주세요.
-    validations:
-      required: false
+- type: input
+  id: issue_label
+  attributes:
+    label: "🏷️ 레이블"
+    description: "JIRA 이슈 세부 사항에 기재될 레이블 목록입니다. (쉼표로 구분하여 여러 개 입력)"
+    placeholder: "backend, auth, new-feature"
+  validations:
+    required: false
+
+- type: textarea
+  id: issue_description
+  attributes:
+    label: "📌 이슈 설명"
+    description: "간단한 이슈 설명입니다. JIRA 이슈 본문(설명)에 포함될 내용입니다."
+    placeholder: "사용자 로그인 시 필요한 인증 기능을 제공하여 보안과 사용자 세션을 관리합니다."
+  validations:
+    required: true
+  
+- type: textarea
+  id: task-list
+  attributes:
+    label: "✅ 작업 목록"
+    description: "해당 이슈를 해결하기 위한 세부 작업 목록을 Markdown 체크리스트로 작성해주세요."
+    value: |
+      - [ ] /api/login 엔드포인트 개발
+      - [ ] 이메일 및 비밀번호 데이터베이스 검증 로직 구현
+      - [ ] 성공 시 JWT 토큰 발급 및 반환
