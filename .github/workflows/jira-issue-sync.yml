@@ -4,6 +4,11 @@ on:
   issues:
     types: [opened]
 
+# 👇 이 부분이 추가되었습니다!
+# 워크플로우가 이슈에 댓글을 쓸 수 있도록 권한을 부여합니다.
+permissions:
+  issues: write
+
 jobs:
   create_jira_issue:
     runs-on: ubuntu-latest
@@ -23,7 +28,7 @@ jobs:
           echo "epic_number=$epic_number" >> $GITHUB_OUTPUT
           echo "issue_label=$issue_label" >> $GITHUB_OUTPUT
 
-     # 2. Jira 필드 JSON을 동적으로 생성 (수정됨)
+      # 2. Jira 필드 JSON을 동적으로 생성
       - name: Construct Jira Fields
         id: construct_fields
         run: |
@@ -34,18 +39,17 @@ jobs:
 
           # 사용자가 에픽 번호를 입력했을 때만 parent 필드를 JSON에 추가
           if [[ -n "$epic_key_raw" && "$epic_key_raw" != "_No response_" ]]; then
-            # 👇 jq 명령어에 -c 옵션을 추가하여 결과를 한 줄로 만듭니다.
             json_fields=$(echo "$json_fields" | jq -c --arg key "$epic_key_raw" '.parent = {"key": $key}')
           fi
 
           # 사용자가 레이블을 입력했을 때만 labels 필드를 JSON에 추가
           if [[ -n "$labels_raw" && "$labels_raw" != "_No response_" ]]; then
             labels_json_array=$(echo "$labels_raw" | jq -R 'split(",") | map(. | ltrim | rtrim) | map(select(length > 0))')
-            # 👇 jq 명령어에 -c 옵션을 추가하여 결과를 한 줄로 만듭니다.
             json_fields=$(echo "$json_fields" | jq -c --argjson labels "$labels_json_array" '.labels = $labels')
           fi
 
           echo "json=$json_fields" >> $GITHUB_OUTPUT
+
       # 3. Jira 로그인
       - name: Login to Jira
         uses: atlassian/gajira-login@v3
@@ -56,6 +60,7 @@ jobs:
 
       # 4. Jira 이슈 생성
       - name: Create Jira Issue
+        id: create_jira
         uses: atlassian/gajira-create@v3
         with:
           project: SCRUM
@@ -63,3 +68,19 @@ jobs:
           summary: ${{ github.event.issue.title }}
           description: ${{ github.event.issue.body }}
           fields: ${{ steps.construct_fields.outputs.json }}
+
+      # 5. Jira 이슈 링크를 깃허브 이슈에 댓글로 추가
+      - name: Add Jira link to GitHub issue
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const jiraIssueKey = "${{ steps.create_jira.outputs.issue }}";
+            const jiraBaseUrl = "${{ secrets.JIRA_BASE_URL }}";
+            const commentBody = `✅ **Jira Issue Created:** [${jiraIssueKey}](${jiraBaseUrl}/browse/${jiraIssueKey})`;
+            
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: commentBody
+            });
