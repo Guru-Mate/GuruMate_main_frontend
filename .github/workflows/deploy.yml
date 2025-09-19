@@ -1,0 +1,50 @@
+name: Deploy Main Frontend via SSM
+
+on:
+  push:
+    branches: [ "dev" ]
+
+permissions:
+  id-token: write # OIDC를 위해 ID 토큰을 발급받을 권한
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: development
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: tjdqls3607/gurumate-main-frontend:dev # 👈 프론트엔드 이미지 이름으로 변경
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::596846156738:role/github-actions-ssm-role
+          aws-region: ap-northeast-2
+
+      - name: Deploy to EC2 via SSM
+        run: |
+          aws ssm send-command \
+            --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy GuruMate frontend" \
+            --parameters 'commands=[
+              "cd /home/ubuntu/GuruMate_infra",
+              "git pull",
+              "docker pull tjdqls3607/gurumate-main-frontend:dev",
+              "docker-compose up -d --no-deps main_frontend"
+            ]'
